@@ -1,0 +1,86 @@
+version: '3.7'
+
+services:
+  #PHP Service
+  bagisto-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: php:8.1fpm-alpine
+    container_name: bagisto-app
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: bagisto-app
+      SERVICE_TAGS: bagisto-dev
+      working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - bagisto-network
+
+  #Nginx Service
+  bagisto-webserver:
+    image: nginx:alpine
+    container_name: bagisto-webserver
+    restart: unless-stopped
+    tty: true
+    expose:
+      - "80"
+    environment:
+      - VIRTUAL_HOST=${HOST_URL}
+      - VIRTUAL_PORT=${VIRTUAL_PORT}
+      - LETSENCRYPT_HOST=${HOST_URL}
+      - LETSENCRYPT_EMAIL=${MAIL_ENCRYPTION}
+    volumes:
+      - ./:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - bagisto-network
+
+  #MySQL Service
+  bagisto-db:
+    image: mysql:8
+    container_name: bagisto-db
+    restart: unless-stopped
+    tty: true
+    expose:
+      - "3306"
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      SERVICE_TAGS: bagisto-dev
+      SERVICE_NAME: bagisto-mysql
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - default
+      - bagisto-network
+
+  bagisto-phpmyadmin:
+    links:
+      - bagisto-db
+    image: phpmyadmin/phpmyadmin
+    container_name: bagisto-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - 8082:80
+    environment:
+      PMA_PORT: 3306
+      PMA_HOST: bagisto-db
+      UPLOAD_LIMIT: 1000000000
+    networks:
+      - default
+
+#Docker Networks
+networks:
+  bagisto-network:
+    external:
+      name: nginx-proxy
+
+#Volumes
+volumes:
+  dbdata:
+    driver: local

@@ -1,0 +1,85 @@
+version: '3'
+
+services:
+  #PHP Service
+  bagisto-local-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: php:fpm-alpine
+    container_name: bagisto-local-app
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: bagisto-local-app
+      SERVICE_TAGS: bagisto-local-dev
+      working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - bagisto-local-network
+
+  #Nginx Service
+  bagisto-local-webserver:
+    image: nginx:alpine
+    container_name: bagisto-local-webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - 8082:80
+    environment:
+      - VIRTUAL_HOST=localhost
+      - VIRTUAL_PORT=8080
+      - LETSENCRYPT_HOST=localhost
+      - LETSENCRYPT_EMAIL=info@devs.mobi
+    volumes:
+      - ./:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - bagisto-local-network
+
+  #MySQL Service
+  bagisto-local-db:
+    image: mysql:5.7.22
+    container_name: bagisto-local-db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - 3308:3306
+    environment:
+      MYSQL_DATABASE: 'bagisto_db'
+      MYSQL_ROOT_PASSWORD: 'mysql'
+      SERVICE_TAGS: bagisto-local-dev
+      SERVICE_NAME: bagisto-local-mysql
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - default
+      - bagisto-local-network
+
+  bagisto-local-phpmyadmin:
+    links:
+      - bagisto-local-db
+    image: phpmyadmin/phpmyadmin
+    container_name: bagisto-local-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - 8083:80
+    environment:
+      PMA_PORT: 3306
+      PMA_HOST: bagisto-local-db
+      UPLOAD_LIMIT: 1000000000
+    networks:
+      - bagisto-local-network
+
+#Docker Networks
+networks:
+  bagisto-local-network:
+    driver: bridge
+
+#Volumes
+volumes:
+  dbdata:
+    driver: local
