@@ -44,6 +44,8 @@ RUN docker-php-ext-install gd
 RUN docker-php-ext-install bcmath
 RUN pecl install redis \
     && docker-php-ext-enable redis
+RUN docker-php-ext-install ext-calendar
+RUN docker-php-ext-install ext-intl
 
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
