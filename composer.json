@@ -124,7 +124,7 @@
                 "shetabit/visitor"
             ],
             "providers": [
-                "Webkul\\Mpesa\\Providers\\MpesaServiceProvider"
+                "Webkul\\Mpesa\\Providers\\MPesaServiceProvider"
             ]
         }
     },
