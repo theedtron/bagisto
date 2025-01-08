@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install -y \
     libzip-dev
 
 # Add crontab file in the cron directory
-COPY cron/evapi-cron /etc/cron.d/evapi-cron
+COPY cron/bagisto-cron /etc/cron.d/bagisto-cron
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
