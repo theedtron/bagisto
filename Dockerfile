@@ -24,7 +24,8 @@ RUN apt-get update && apt-get install -y \
     cron \
     sudo \
     mailutils \
-    libzip-dev
+    libzip-dev \
+    libicu-dev
 
 # Add crontab file in the cron directory
 COPY cron/bagisto-cron /etc/cron.d/bagisto-cron
