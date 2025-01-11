@@ -48,6 +48,7 @@ RUN pecl install redis \
     && docker-php-ext-enable redis
 RUN docker-php-ext-install calendar
 RUN docker-php-ext-install intl
+RUN docker-php-ext-configure gd --with-webp
 
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
