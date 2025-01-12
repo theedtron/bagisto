@@ -29,7 +29,7 @@ RUN apt-get update && apt-get install -y \
     libwebp-dev \
     libpng-dev \
     libjpeg-dev \
-    php-imagick
+    libmagickwand-dev
 
 # Add crontab file in the cron directory
 COPY cron/bagisto-cron /etc/cron.d/bagisto-cron
