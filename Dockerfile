@@ -28,7 +28,8 @@ RUN apt-get update && apt-get install -y \
     libicu-dev \
     libwebp-dev \
     libpng-dev \
-    libjpeg-dev 
+    libjpeg-dev \
+    php-imagick
 
 # Add crontab file in the cron directory
 COPY cron/bagisto-cron /etc/cron.d/bagisto-cron
@@ -50,7 +51,6 @@ RUN pecl install redis \
     && docker-php-ext-enable redis
 RUN docker-php-ext-install calendar
 RUN docker-php-ext-install intl
-RUN docker-php-ext-install imagick
 RUN docker-php-ext-configure gd --with-webp
 
 # Install composer
